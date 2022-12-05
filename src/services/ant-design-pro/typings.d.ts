@@ -98,4 +98,27 @@ declare namespace API {
     description?: string;
     type?: NoticeIconItemType;
   };
+
+  type ApplicationAdmin = {
+    id?: number;
+    appName?: string;
+    availabilityZone?: string;
+    appStatus?: boolean;
+    appInstance?: number;
+    appRemark?: string;
+    createDate?: string;
+    updateDate?: string;
+  };
+
+  type ApplicationAdminInstance = {
+    id?: number;
+    applicationId?: number;
+    appName?: string;
+    appInstanceId?: string;
+    availabilityZone?: string;
+    appStatus?: string;
+    appInstance?: number;
+    createDate?: string;
+    updateDate?: string;
+  };
 }
