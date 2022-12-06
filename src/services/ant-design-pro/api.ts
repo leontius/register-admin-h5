@@ -137,3 +137,28 @@ export async function removeApplicationAdmin(options?: { [key: string]: any }) {
   });
 }
 
+
+export async function instanceUp(
+  params: {
+    id?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.ApplicationAdminInstance>(`/api/discovery/status/up/${params.id}`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+
+export async function instanceDown(
+  params: {
+    id?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.ApplicationAdminInstance>(`/api/discovery/status/down/${params.id}`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}

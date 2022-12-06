@@ -1,8 +1,12 @@
-import {applicationAdmin, applicationAdminInstance, removeApplicationAdmin} from '@/services/ant-design-pro/api';
+import {
+  applicationAdmin,
+  applicationAdminInstance, instanceDown,
+  instanceUp,
+  removeApplicationAdmin
+} from '@/services/ant-design-pro/api';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import {
   FooterToolbar,
-  ModalForm,
   PageContainer,
   ProTable
 } from '@ant-design/pro-components';
@@ -156,20 +160,24 @@ const TableList: React.FC = () => {
       hideInForm: true,
       valueEnum: {
         0: {
-          text: '默认',
-          status: 'Default',
-        },
-        1: {
-          text: '进行中',
+          text: '在线',
           status: 'Processing',
         },
+        1: {
+          text: '下线',
+          status: 'Error',
+        },
         2: {
-          text: '成功',
-          status: 'Success',
+          text: '正在启动',
+          status: 'Default',
         },
         3: {
-          text: '错误',
+          text: '过期服务',
           status: 'Error',
+        },
+        4: {
+          text: '未知',
+          status: 'Default',
         },
       },
     },
@@ -202,8 +210,9 @@ const TableList: React.FC = () => {
         <a
           key="up"
           onClick={() => {
-            // setCurrentRow(record);
-            // handleModalVisible(true);
+            instanceUp({
+              id: record.id,
+            },{});
           }}
         >
           上线
@@ -211,8 +220,9 @@ const TableList: React.FC = () => {
         <a
           key="down"
           onClick={() => {
-            // setCurrentRow(record);
-            // handleModalVisible(true);
+            instanceDown({
+              id: record.id,
+            },{});
           }}
         >
           下线
