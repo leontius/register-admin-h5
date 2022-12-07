@@ -208,24 +208,39 @@ const TableList: React.FC = () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       render: (_, record) => [
         <a
-          key="up"
+          key="upDown"
           onClick={() => {
-            instanceUp({
-              id: record.id,
-            },{});
-          }}
+            const hide = message.loading('正在处理');
+            try {
+              if (record.appStatus !== 1) {
+                instanceDown({
+                  id: record.id,
+                }, {}).then(() => {
+                  hide();
+                  message.success('下线成功');
+                  if (actionRefInstance.current) {
+                    actionRefInstance.current.reload();
+                  }
+                });
+              } else {
+                hide();
+                message.success('上线成功');
+                instanceUp({
+                  id: record.id,
+                }, {}).then(() => {
+                  if (actionRefInstance.current) {
+                    actionRefInstance.current.reload();
+                  }
+                });
+              }
+            } catch (e) {
+              hide();
+              message.error('处理失败');
+            }
+          }
+        }
         >
-          上线
-        </a>,
-        <a
-          key="down"
-          onClick={() => {
-            instanceDown({
-              id: record.id,
-            },{});
-          }}
-        >
-          下线
+          { record.appStatus !== 1 ? '下线':'上线' }
         </a>,
       ],
     },

@@ -116,7 +116,7 @@ declare namespace API {
     appName?: string;
     appInstanceId?: string;
     availabilityZone?: string;
-    appStatus?: string;
+    appStatus?: number;
     appInstance?: number;
     createDate?: string;
     updateDate?: string;
