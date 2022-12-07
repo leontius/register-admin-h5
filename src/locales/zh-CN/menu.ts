@@ -23,6 +23,7 @@ export default {
   'menu.form.advanced-form': '高级表单',
   'menu.list': '列表页',
   'menu.list.instance-list': '服务管理',
+  'menu.list.app-list': '应用配置',
   'menu.list.table-list': '查询表格',
   'menu.list.basic-list': '标准列表',
   'menu.list.card-list': '卡片列表',

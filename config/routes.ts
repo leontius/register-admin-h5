@@ -20,12 +20,12 @@ export default [
       },
     ],
   },
-  {
-    path: '/welcome',
-    name: 'welcome',
-    icon: 'smile',
-    component: './Welcome',
-  },
+  // {
+  //   path: '/welcome',
+  //   name: 'welcome',
+  //   icon: 'smile',
+  //   component: './Welcome',
+  // },
   // {
   //   path: '/admin',
   //   name: 'admin',
@@ -50,14 +50,20 @@ export default [
     component: './instance',
   },
   {
-    name: 'list.table-list',
+    name: 'list.app-list',
     icon: 'table',
-    path: '/list',
-    component: './TableList',
+    path: '/appConfig',
+    component: './instance',
   },
+  // {
+  //   name: 'list.table-list',
+  //   icon: 'table',
+  //   path: '/list',
+  //   component: './TableList',
+  // },
   {
     path: '/',
-    redirect: '/welcome',
+    redirect: '/instanceList',
   },
   {
     path: '*',
