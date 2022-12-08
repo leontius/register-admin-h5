@@ -49,12 +49,12 @@ export default [
     path: '/instanceList',
     component: './instance',
   },
-  {
-    name: 'list.app-list',
-    icon: 'table',
-    path: '/appConfig',
-    component: './instance',
-  },
+  // {
+  //   name: 'list.app-list',
+  //   icon: 'table',
+  //   path: '/appConfig',
+  //   component: './instance',
+  // },
   // {
   //   name: 'list.table-list',
   //   icon: 'table',

@@ -162,3 +162,26 @@ export async function instanceDown(
     ...(options || {}),
   });
 }
+
+export async function addStrategyConfig(body: any, options?: { [key: string]: any }) {
+  return request<API.StrategyConfig>('/api/strategyConfig/save', {
+    method: 'PUT',
+    data: body,
+    ...(options || {}),
+  });
+}
+
+export async function getStrategyConfig(
+  params: {
+    id?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.StrategyConfigList>('/api/strategyConfig/getByAppId', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}

@@ -121,4 +121,22 @@ declare namespace API {
     createDate?: string;
     updateDate?: string;
   };
+
+  type StrategyConfigList = {
+    data?: StrategyConfig[];
+    code?: number;
+    isSuccess?: boolean;
+    message?: string;
+  };
+
+  type StrategyConfig = {
+    id?: number;
+    applicationId?: number;
+    strategyName?: string;
+    strategy?: string;
+    paramType?: string;
+    availableStatus?: number;
+    createDate?: string;
+    updateDate?: string;
+  };
 }

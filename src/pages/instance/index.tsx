@@ -1,13 +1,14 @@
 import {
+  addRule, addStrategyConfig,
   applicationAdmin,
-  applicationAdminInstance, instanceDown,
+  applicationAdminInstance, getStrategyConfig, instanceDown,
   instanceUp,
   removeApplicationAdmin
 } from '@/services/ant-design-pro/api';
-import type { ActionType, ProColumns } from '@ant-design/pro-components';
+import {ActionType, ProColumns, ProFormInstance, ProFormSelect } from '@ant-design/pro-components';
 import {
-  FooterToolbar,
-  PageContainer,
+  FooterToolbar, ModalForm,
+  PageContainer, ProFormText, ProForm,
   ProTable
 } from '@ant-design/pro-components';
 import { FormattedMessage } from '@umijs/max';
@@ -38,16 +39,32 @@ const handleRemove = async (selectedRows: API.ApplicationAdmin[]) => {
   }
 };
 
+const handleAdd = async (fields: API.StrategyConfig, app: API.ApplicationAdmin) => {
+  const hide = message.loading('正在添加');
+  try {
+    await addStrategyConfig({...fields, applicationId: app.id, appName: app.appName});
+    hide();
+    message.success('增加成功');
+    return true;
+  } catch (error) {
+    hide();
+    message.error('增加失败!');
+    return false;
+  }
+};
+
 const TableList: React.FC = () => {
 
   // const [showDetail, setShowDetail] = useState<boolean>(false);
+  const restFormRef = useRef<ProFormInstance>();
 
   const actionRef = useRef<ActionType>();
 
   const actionRefInstance = useRef<ActionType>();
 
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
-
+  const [createModalStrategyVisible, setModalStrategyVisible] = useState<boolean>(false);
+  const [now, setNow] = useState(() => Date.now())
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [currentRow, setCurrentRow] = useState<API.ApplicationAdmin>();
 
@@ -56,6 +73,7 @@ const TableList: React.FC = () => {
   const columns: ProColumns<API.ApplicationAdmin>[] = [
     {
       title: '序号',
+      width: 50,
       dataIndex: 'id',
       hideInSearch: true,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -75,7 +93,7 @@ const TableList: React.FC = () => {
     {
       title: '应用名称',
       dataIndex: 'appName',
-      valueType: 'textarea',
+      ellipsis: true,
     },
     {
       title: '可用区',
@@ -113,12 +131,14 @@ const TableList: React.FC = () => {
     {
       title: '创建时间',
       sorter: true,
+      width: 200,
       hideInSearch: true,
       dataIndex: 'createDate',
       valueType: 'dateTime',
     },
     {
       title: '更新时间',
+      width: 200,
       hideInSearch: true,
       sorter: true,
       dataIndex: 'updateDate',
@@ -142,6 +162,14 @@ const TableList: React.FC = () => {
         >
           详情
         </a>,
+        <a
+          key="addStrategy"
+          onClick={() => {
+            setCurrentRow(record);
+            setModalStrategyVisible(true)
+          }}>
+          策略
+        </a>
       ],
     },
   ];
@@ -203,6 +231,7 @@ const TableList: React.FC = () => {
     },
     {
       title: '操作',
+      width: 100,
       dataIndex: 'option',
       valueType: 'option',
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -246,9 +275,88 @@ const TableList: React.FC = () => {
     },
   ];
 
+  const columnsStrategyConfig: ProColumns<API.StrategyConfig>[] = [
+    {
+      title: '策略名称',
+      ellipsis: true,
+      dataIndex: 'strategyName',
+    },
+    {
+      title: '策略类型',
+      ellipsis: true,
+      dataIndex: 'strategy',
+    },
+    {
+      title: '匹配方式',
+      ellipsis: true,
+      dataIndex: 'paramType',
+    },
+    {
+      title: '状态',
+      ellipsis: true,
+      dataIndex: 'availableStatus',
+      valueEnum: {
+        0: {
+          text: '停用',
+          status: 'Default',
+        },
+        1: {
+          text: '启用',
+          status: 'Processing',
+        },
+      },
+    },
+    {
+      title: '操作',
+      dataIndex: 'option',
+      valueType: 'option',
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      render: (_, record) => [
+        <a
+          key="upDown"
+          onClick={() => {}
+        }
+        >
+          启用
+        </a>,
+      ]
+    },
+  ];
+
+  const onExpand = (expanded: boolean) => {
+    if (expanded) {
+      setNow(Date.now())
+    }
+  };
+  const expandedRowRender = (record: API.ApplicationAdmin) => {
+    return (
+      <ProTable
+        params={{now}}
+        rowKey="id"
+        columns={columnsStrategyConfig}
+        headerTitle={false}
+        search={false}
+        options={false}
+        request={async () => {
+          return {
+            ...await getStrategyConfig({
+              id: record.id,
+            }),
+            success: true,
+          }
+        }}
+        pagination={false}
+      />
+    );
+  };
+
   return (
     <PageContainer>
       <ProTable<API.ApplicationAdmin, API.PageParams>
+        expandable={{
+          onExpand,
+          expandedRowRender
+        }}
         headerTitle='服务列表'
         actionRef={actionRef}
         rowKey="id"
@@ -330,6 +438,130 @@ const TableList: React.FC = () => {
           columns={columnsInstance}
         />
       </Modal>
+      <ModalForm
+        title='策略'
+        width='780px'
+        formRef={restFormRef}
+        open={createModalStrategyVisible}
+        onOpenChange={setModalStrategyVisible}
+        onFinish={async (value) => {
+          console.log(value)
+          const success = await handleAdd(value as API.StrategyConfig, currentRow as API.ApplicationAdmin);
+          if (success) {
+            setModalStrategyVisible(false);
+            actionRef.current?.reload();
+            restFormRef.current?.resetFields();
+            setNow(Date.now)
+          }
+        }}
+      >
+        <ProForm.Group>
+          <ProFormText
+            rules={[
+              {
+                required: true,
+                message: '必填',
+                max: 24
+              },
+            ]}
+            width="md"
+            name="strategyName"
+            label="策略名称"
+            tooltip="最长为 24 位"
+            placeholder="请输入名称"
+          />
+          <ProFormSelect
+            rules={[
+              {
+                required: true,
+                message: '必填',
+              },
+            ]}
+            request={async () => [
+              {
+                value: 'and',
+                label: 'and',
+              },
+              {
+                value: 'or',
+                label: 'or',
+              },
+            ]}
+            width="md"
+            name="strategy"
+            label="策略类型"
+            placeholder="请选择"
+          />
+        </ProForm.Group>
+        <ProForm.Group>
+          <ProFormSelect
+            rules={[
+              {
+                required: true,
+                message: '必填',
+              },
+            ]}
+            request={async () => [
+              {
+                value: 'post',
+                label: 'post',
+              },
+              {
+                value: 'uri',
+                label: 'uri',
+              },
+              {
+                value: 'host',
+                label: 'host',
+              },
+              {
+                value: 'ip',
+                label: 'ip',
+              },
+            ]}
+            width="md"
+            name="paramType"
+            label="条件"
+            placeholder="请选择"
+          />
+          <ProFormSelect
+            rules={[
+              {
+                required: true,
+                message: '必填',
+              },
+            ]}
+            request={async () => [
+              {
+                value: 'match',
+                label: 'match',
+              },
+              {
+                value: '=',
+                label: '=',
+              }
+            ]}
+            width="md"
+            name="operator"
+            label="匹配"
+            placeholder="请选择"
+          />
+        </ProForm.Group>
+        <ProForm.Group>
+          <ProFormText
+            rules={[
+              {
+                required: true,
+                message: '必填',
+              },
+            ]}
+            width="md"
+            name="paramValue"
+            label="匹配表达式"
+            placeholder="请选择"
+          />
+        </ProForm.Group>
+      </ModalForm>
     </PageContainer>
   );
 };
