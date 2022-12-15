@@ -59,9 +59,21 @@ const handleRemoveStrategy = async (params) => {
   }
 };
 
-const handleAdd = async (fields: API.StrategyConfig, app: API.ApplicationAdmin) => {
+const handleAdd = async (fields: API.StrategyConfig, app: API.ApplicationAdmin, groupState: string | undefined, groupRow: API.GetStrategyGroupList) => {
   const hide = message.loading('正在添加');
   try {
+    console.log(fields)
+    console.log(groupState === 'rule')
+    console.log(groupState)
+    if (fields.availableStatus) {
+      fields.availableStatus = 1
+    } else {
+      fields.availableStatus = 0
+    }
+    if (groupState === 'rule') {
+      fields.parentId = groupRow.id
+    }
+    console.log(fields)
     await addStrategyConfig({...fields, appName: app.appName});
     hide();
     message.success('增加成功');
@@ -96,12 +108,25 @@ const TableList: React.FC = () => {
 
   const actionRefInstance = useRef<ActionType>();
   const actionRefStrategy = useRef<ActionType>();
+  const actionRefGroup = useRef<ActionType>();
+  const actionRefRule = useRef<ActionType>();
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
   const [createModalStrategyVisible, setModalStrategyVisible] = useState<boolean>(false);
   const [createModalStrategy2Visible, setModalStrategy2Visible] = useState<boolean>(false);
+
+  const [groupState, setGroupState] = useState<string>('group');
+
   const [now, setNow] = useState(() => Date.now())
+
+  const [groupNow, setGroupNow] = useState(() => Date.now())
+
+  const [ruleNow, setRuleNow] = useState(() => Date.now())
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [currentRow, setCurrentRow] = useState<API.ApplicationAdmin>();
+
+  const [currentGroupRow, setCurrentGroupRow] = useState<API.GetStrategyGroupList[]>([]);
+
+  const [currentRuleRow, setCurrentRuleRow] = useState<API.GetStrategyRuleList>();
 
   const [selectedRowsState, setSelectedRows] = useState<API.ApplicationAdmin[]>([]);
 
@@ -202,6 +227,8 @@ const TableList: React.FC = () => {
           onClick={() => {
             setCurrentRow(record);
             setModalStrategyVisible(true)
+            setGroupNow(Date.now)
+            setRuleNow(Date.now)
           }}>
           策略
         </a>
@@ -348,7 +375,7 @@ const TableList: React.FC = () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       render: (_, record) => [
         <a
-          key="upDown"
+          key="upDownQy"
           onClick={() => {}
         }
         >
@@ -360,9 +387,9 @@ const TableList: React.FC = () => {
 
   const columnsSelector: ProColumns<API.GetStrategyGroupList>[] = [
     {
-      title: '选择器名称',
+      title: '名称',
       ellipsis: true,
-      width: 300,
+      width: 100,
       dataIndex: 'strategyName',
       hideInSearch: true,
       valueType: 'textarea',
@@ -390,17 +417,18 @@ const TableList: React.FC = () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       render: (_, record) => [
         <a
-          key="upDown"
+          key="upDownxg"
           onClick={() => {}
         }
         >
           修改
         </a>,
         <a
-        key="upDown"
+        key="upDownsc"
         onClick={async () => {
           await handleRemoveStrategy(record);
-          actionRefStrategy.current?.reloadAndRest?.();
+          actionRefGroup.current?.reloadAndRest?.();
+          actionRefRule.current?.reloadAndRest?.();
         }
       }
       >
@@ -414,24 +442,23 @@ const TableList: React.FC = () => {
     {
       title: '规则名称',
       ellipsis: true,
-      width: 300,
-      dataIndex: 'appName',
+      width: 100,
+      dataIndex: 'strategyName',
       hideInSearch: true,
-      valueType: 'textarea',
     },
     {
       title: '状态',
       width: 100,
       hideInSearch: true,
-      dataIndex: 'appStatus',
+      dataIndex: 'availableStatus',
       valueEnum: {
         0: {
           text: '停用',
-          status: 'Default',
+          status: '1',
         },
         1: {
           text: '启用',
-          status: 'Processing',
+          status: '0',
         },
       },
     },
@@ -450,17 +477,17 @@ const TableList: React.FC = () => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       render: (_, record) => [
         <a
-          key="upDown"
+          key="upDownxcc"
           onClick={() => {}
         }
         >
           修改
         </a>,
         <a
-        key="upDown"
+        key="upDowndleel"
         onClick={async () => {
           await handleRemoveStrategy(record);
-          actionRefStrategy.current?.reloadAndRest?.();
+          actionRefRule.current?.reloadAndRest?.();
         }
       }
       >
@@ -610,62 +637,95 @@ const TableList: React.FC = () => {
           <ProCard colSpan={10}>
             <ProTable<API.GetStrategyGroupList, API.PageParams>
               headerTitle='选择器列表'
+              params={{groupNow}}
               search={false}
               options={false}
               cardBordered={true}
               toolBarRender={() => [
                 <Button key="button" type="primary" onClick={() => {
                   setModalStrategy2Visible(true)
+                  setGroupState('group')
                 }}>
                   添加选择器
                 </Button>,
               ]}
-              actionRef={actionRefStrategy}
+              actionRef={actionRefGroup}
               rowKey="id"
               // request={getStrategyGroupList}
               request={async () => {
                 return {
                   ...await getStrategyGroupList({
-                    appName: 'REGISTER-SPRINGCLOUD-EXAMPLE-EUREKA-CLIENT',
+                    appName: (currentRow as API.ApplicationAdmin).appName,
                   }),
                   success: true,
                 }
               }}
               columns={columnsSelector}
+              rowSelection={{
+                onChange: (keys, selectedRows) => {
+                  if (keys.length > 1){
+                    keys.shift()
+                    selectedRows.shift()
+                    setCurrentGroupRow(selectedRows);
+                    actionRefRule?.current?.reload();
+                  } else if (keys.length === 1){
+                    setCurrentGroupRow(selectedRows);
+                    actionRefRule?.current?.reload();
+                  }
+                },
+              }}
             />
           </ProCard>
           <ProCard colSpan={14}>
             <ProTable<API.GetStrategyRuleList, API.PageParams>
               headerTitle='选择器规则列表'
+              params={{ruleNow}}
               search={false}
               options={false}
               cardBordered={true}
               toolBarRender={() => [
-                <Button key="button" type="primary">
+                <Button key="button" type="primary" onClick={ () => {
+                  if (!currentGroupRow || currentGroupRow.length === 0) {
+                    message.error('请选择选择器')
+                    return
+                  }
+                  setModalStrategy2Visible(true)
+                  setGroupState('rule')
+                }}>
                   添加规则
                 </Button>,
               ]}
-              actionRef={actionRefInstance}
+              actionRef={actionRefRule}
               rowKey="id"
-              request={getStrategyRuleList}
+              // request={getStrategyRuleList}
+              request={async () => {
+                return {
+                  ...await getStrategyRuleList({
+                    parentId: currentGroupRow[0].id,
+                    appName: (currentRow as API.ApplicationAdmin).appName,
+                  }),
+                  success: true,
+                }
+              }}
               columns={columnsRule}
             /></ProCard>
           </ProCard>
       </Modal>
       <ModalForm
-        title='添加选择器'
+        title={ 'group' === groupState ? '添加选择器' : '添加规则'}
         width='850px'
         layout='horizontal'
         open={createModalStrategy2Visible}
         onOpenChange={setModalStrategy2Visible}
         onFinish={async (value) => {
-          console.log('11111', currentRow)
-          const success =  await handleAdd(value as API.StrategyConfig, currentRow as API.ApplicationAdmin);
+          const success =  await handleAdd(value as API.StrategyConfig, currentRow as API.ApplicationAdmin, groupState, currentGroupRow[0] as API.GetStrategyGroupList);
           if (success) {
             setModalStrategy2Visible(false);
             actionRefStrategy.current?.reload();
             restFormRef.current?.resetFields();
             setNow(Date.now)
+            setGroupNow(Date.now)
+            setRuleNow(Date.now)
           }
         }}
       >
@@ -734,7 +794,7 @@ const TableList: React.FC = () => {
               {
                 value: 'header',
                 label: 'header',
-              }  
+              }
             ]}
             labelCol={{ style: { width: 100 } }}
             name="paramType"
@@ -788,7 +848,7 @@ const TableList: React.FC = () => {
           />
         </ProForm.Group>
         <ProForm.Group>
-          <ProFormSwitch name="isAvailable" label="是否开启" labelCol={{ style: { width: 100 } }} />
+          <ProFormSwitch name="availableStatus" label="是否开启" labelCol={{ style: { width: 100 } }} />
         </ProForm.Group>
       </ModalForm>
     </PageContainer>

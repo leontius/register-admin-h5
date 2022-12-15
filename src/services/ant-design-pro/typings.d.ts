@@ -121,8 +121,9 @@ declare namespace API {
     createDate?: string;
     updateDate?: string;
   };
-  
+
   type GetStrategyGroupList = {
+    id?: number;
     applicationId?: number;
     strategyName?: string;
     availableStatus?: string;
@@ -152,6 +153,7 @@ declare namespace API {
 
   type StrategyConfig = {
     id?: number;
+    parentId?: number;
     appName?: string;
     applicationId?: number;
     strategyName?: string;
