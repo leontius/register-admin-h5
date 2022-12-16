@@ -124,15 +124,34 @@ declare namespace API {
 
   type GetStrategyGroupList = {
     id?: number;
+    parentId?: number;
+    appName?: string;
     applicationId?: number;
     strategyName?: string;
-    availableStatus?: string;
+    strategy?: string;
+    paramType?: string;
+    operator?: string;
+    paramValue?: string;
+    availableStatus?: number;
+    isAvailable?: number;
+    createDate?: string;
+    updateDate?: string;
   };
 
   type GetStrategyRuleList = {
+    id?: number;
+    parentId?: number;
+    appName?: string;
     applicationId?: number;
     strategyName?: string;
-    availableStatus?: string;
+    strategy?: string;
+    paramType?: string;
+    operator?: string;
+    paramValue?: string;
+    availableStatus?: number;
+    isAvailable?: number;
+    createDate?: string;
+    updateDate?: string;
   };
 
   type GetStrategyRuleList = {

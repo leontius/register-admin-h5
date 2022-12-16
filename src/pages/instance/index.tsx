@@ -104,6 +104,8 @@ const TableList: React.FC = () => {
   // const [showDetail, setShowDetail] = useState<boolean>(false);
   const restFormRef = useRef<ProFormInstance>();
 
+  const restFormDateRef = useRef<ProFormInstance>();
+
   const actionRef = useRef<ActionType>();
 
   const actionRefInstance = useRef<ActionType>();
@@ -116,6 +118,10 @@ const TableList: React.FC = () => {
 
   const [groupState, setGroupState] = useState<string>('group');
 
+  const [flagGroup, setGroupFlag] = useState<string>('add');
+
+  const [flagRule, setRuleFlag] = useState<string>('add');
+
   const [now, setNow] = useState(() => Date.now())
 
   const [groupNow, setGroupNow] = useState(() => Date.now())
@@ -126,7 +132,8 @@ const TableList: React.FC = () => {
 
   const [currentGroupRow, setCurrentGroupRow] = useState<API.GetStrategyGroupList[]>([]);
 
-  const [currentRuleRow, setCurrentRuleRow] = useState<API.GetStrategyRuleList>();
+  const [currentGroupUpdateRow, setCurrentGroupUpdateRow] = useState<API.GetStrategyGroupList>();
+
 
   const [selectedRowsState, setSelectedRows] = useState<API.ApplicationAdmin[]>([]);
 
@@ -418,7 +425,11 @@ const TableList: React.FC = () => {
       render: (_, record) => [
         <a
           key="upDownxg"
-          onClick={() => {}
+          onClick={() => {
+            setGroupFlag('update')
+            setCurrentGroupUpdateRow(record)
+            setModalStrategy2Visible(true)
+          }
         }
         >
           修改
@@ -438,7 +449,7 @@ const TableList: React.FC = () => {
     },
   ];
 
-  const columnsRule: ProColumns<API.ApplicationAdminInstance>[] = [
+  const columnsRule: ProColumns<API.GetStrategyGroupList>[] = [
     {
       title: '规则名称',
       ellipsis: true,
@@ -478,7 +489,11 @@ const TableList: React.FC = () => {
       render: (_, record) => [
         <a
           key="upDownxcc"
-          onClick={() => {}
+          onClick={() => {
+            setRuleFlag('update')
+            setCurrentGroupUpdateRow(record)
+            setModalStrategy2Visible(true)
+          }
         }
         >
           修改
@@ -501,27 +516,6 @@ const TableList: React.FC = () => {
     if (expanded) {
       setNow(Date.now())
     }
-  };
-  const expandedRowRender = (record: API.ApplicationAdmin) => {
-    return (
-      <ProTable
-        params={{now}}
-        rowKey="id"
-        columns={columnsStrategyConfig}
-        headerTitle={false}
-        search={false}
-        options={false}
-        request={async () => {
-          return {
-            ...await getStrategyConfig({
-              id: record.id,
-            }),
-            success: true,
-          }
-        }}
-        pagination={false}
-      />
-    );
   };
 
   return (
@@ -636,6 +630,7 @@ const TableList: React.FC = () => {
         <ProCard gutter={24}>
           <ProCard colSpan={10}>
             <ProTable<API.GetStrategyGroupList, API.PageParams>
+              pagination={false}
               headerTitle='选择器列表'
               params={{groupNow}}
               search={false}
@@ -643,8 +638,10 @@ const TableList: React.FC = () => {
               cardBordered={true}
               toolBarRender={() => [
                 <Button key="button" type="primary" onClick={() => {
-                  setModalStrategy2Visible(true)
                   setGroupState('group')
+                  setGroupFlag('add')
+                  setModalStrategy2Visible(true)
+                  restFormDateRef.current?.resetFields();
                 }}>
                   添加选择器
                 </Button>,
@@ -678,6 +675,7 @@ const TableList: React.FC = () => {
           </ProCard>
           <ProCard colSpan={14}>
             <ProTable<API.GetStrategyRuleList, API.PageParams>
+              pagination={false}
               headerTitle='选择器规则列表'
               params={{ruleNow}}
               search={false}
@@ -689,8 +687,10 @@ const TableList: React.FC = () => {
                     message.error('请选择选择器')
                     return
                   }
-                  setModalStrategy2Visible(true)
                   setGroupState('rule')
+                  setRuleFlag('add')
+                  setModalStrategy2Visible(true)
+                  restFormDateRef.current?.resetFields();
                 }}>
                   添加规则
                 </Button>,
@@ -712,11 +712,29 @@ const TableList: React.FC = () => {
           </ProCard>
       </Modal>
       <ModalForm
+        formRef={restFormDateRef}
         title={ 'group' === groupState ? '添加选择器' : '添加规则'}
         width='850px'
         layout='horizontal'
         open={createModalStrategy2Visible}
         onOpenChange={setModalStrategy2Visible}
+        // request={async () => {
+        //   return {
+        //     ...await getStrategyConfig({
+        //       id: ('group' === groupState ? currentGroupUpdateRow.id : currentRuleUpdateRow.id),
+        //     }),
+        //     success: true,
+        //   }
+        // }}
+        modalProps={{
+          destroyOnClose: true,
+          onCancel: () => {
+            console.log(123123)
+            setModalStrategy2Visible(false);
+            setCurrentGroupUpdateRow(undefined)
+          }
+        }}
+        initialValues={currentGroupUpdateRow}
         onFinish={async (value) => {
           const success =  await handleAdd(value as API.StrategyConfig, currentRow as API.ApplicationAdmin, groupState, currentGroupRow[0] as API.GetStrategyGroupList);
           if (success) {
@@ -727,9 +745,12 @@ const TableList: React.FC = () => {
             setGroupNow(Date.now)
             setRuleNow(Date.now)
           }
+          restFormDateRef.current?.resetFields();
         }}
       >
-          <ProFormText
+        <ProFormText hidden={true} name="id" initialValue={currentGroupUpdateRow?.id}/>
+        <ProFormText hidden={true} name="parentId" initialValue={currentGroupUpdateRow?.parentId}/>
+        <ProFormText
             rules={[
               {
                 required: true,

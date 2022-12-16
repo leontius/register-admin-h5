@@ -203,7 +203,7 @@ export async function getStrategyConfig(
   },
   options?: { [key: string]: any },
 ) {
-  return request<API.StrategyConfigList>('/api/strategyConfig/getByAppId', {
+  return request<API.StrategyConfigList>('/api/strategyConfig/get', {
     method: 'GET',
     params: {
       ...params,
