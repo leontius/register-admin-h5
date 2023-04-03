@@ -1,5 +1,9 @@
 import Footer from '@/components/Footer';
+// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { login } from '@/services/ant-design-pro/api';
+// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { getFakeCaptcha } from '@/services/ant-design-pro/login';
 import {
   AlipayCircleOutlined,
@@ -55,10 +59,16 @@ const Login: React.FC = () => {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleSubmit = async (values: API.LoginParams) => {
     try {
       // 登录
-      const msg = await login({ ...values, type });
+      // const msg = await login({ ...values, type });
+      const msg = {
+        status: 'ok',
+        type,
+        currentAuthority: 'admin',
+      };
       if (msg.status === 'ok') {
         const defaultLoginSuccessMessage = intl.formatMessage({
           id: 'pages.login.success',
@@ -137,7 +147,7 @@ const Login: React.FC = () => {
             <LoginMessage
               content={intl.formatMessage({
                 id: 'pages.login.accountLogin.errorMessage',
-                defaultMessage: '账户或密码错误(admin/ant.design)',
+                defaultMessage: '账户或密码错误(admin',
               })}
             />
           )}
@@ -151,7 +161,7 @@ const Login: React.FC = () => {
                 }}
                 placeholder={intl.formatMessage({
                   id: 'pages.login.username.placeholder',
-                  defaultMessage: '用户名: admin or user',
+                  defaultMessage: '用户名: admin',
                 })}
                 rules={[
                   {
@@ -173,7 +183,7 @@ const Login: React.FC = () => {
                 }}
                 placeholder={intl.formatMessage({
                   id: 'pages.login.password.placeholder',
-                  defaultMessage: '密码: ant.design',
+                  defaultMessage: '密码: 123456',
                 })}
                 rules={[
                   {
@@ -261,12 +271,13 @@ const Login: React.FC = () => {
                   },
                 ]}
                 onGetCaptcha={async (phone) => {
-                  const result = await getFakeCaptcha({
-                    phone,
-                  });
-                  if (result === false) {
-                    return;
-                  }
+                  // const result = await getFakeCaptcha({
+                  //   phone,
+                  // });
+                  // // @ts-ignore
+                  // if (result === false) {
+                  //   return;
+                  // }
                   message.success('获取验证码成功！验证码为：1234');
                 }}
               />

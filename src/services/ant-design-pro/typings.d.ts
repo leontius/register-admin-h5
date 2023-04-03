@@ -98,4 +98,45 @@ declare namespace API {
     description?: string;
     type?: NoticeIconItemType;
   };
+
+  type ApplicationAdmin = {
+    id?: number;
+    appName?: string;
+    availabilityZone?: string;
+    appStatus?: boolean;
+    appInstance?: number;
+    appRemark?: string;
+    createDate?: string;
+    updateDate?: string;
+  };
+
+  type ApplicationAdminInstance = {
+    id?: number;
+    applicationId?: number;
+    appName?: string;
+    appInstanceId?: string;
+    availabilityZone?: string;
+    appStatus?: number;
+    appInstance?: number;
+    createDate?: string;
+    updateDate?: string;
+  };
+
+  type StrategyConfigList = {
+    data?: StrategyConfig[];
+    code?: number;
+    isSuccess?: boolean;
+    message?: string;
+  };
+
+  type StrategyConfig = {
+    id?: number;
+    applicationId?: number;
+    strategyName?: string;
+    strategy?: string;
+    paramType?: string;
+    availableStatus?: number;
+    createDate?: string;
+    updateDate?: string;
+  };
 }

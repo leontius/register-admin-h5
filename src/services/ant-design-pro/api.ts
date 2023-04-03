@@ -83,3 +83,105 @@ export async function removeRule(options?: { [key: string]: any }) {
     ...(options || {}),
   });
 }
+
+
+/** 获取规则列表 GET /api/applicationAdmin */
+export async function applicationAdmin(
+  params: {
+    // query
+    /** 当前的页码 */
+    currentPage?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.ApplicationAdmin>('/api/applicationAdmin/list', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** 获取规则列表 GET /api/applicationAdminInstance */
+export async function applicationAdminInstance(
+  params: {
+    // query
+    /** 当前的页码 */
+    currentPage?: number;
+    /** 页面的容量 */
+    pageSize?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.ApplicationAdmin>('/api/applicationAdminInstance/list', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
+/** 删除规则 DELETE /api/removeApplicationAdmin */
+export async function removeApplicationAdmin(options?: { [key: string]: any }) {
+  // @ts-ignore
+  return request<Record<string, any>>('/api/applicationAdmin/delete/multiple', {
+    method: 'DELETE',
+    params:{
+      ids: options.key.join(',')
+    },
+    ...(options || {}),
+  });
+}
+
+
+export async function instanceUp(
+  params: {
+    id?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.ApplicationAdminInstance>(`/api/discovery/status/up/${params.id}`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+
+export async function instanceDown(
+  params: {
+    id?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.ApplicationAdminInstance>(`/api/discovery/status/down/${params.id}`, {
+    method: 'GET',
+    ...(options || {}),
+  });
+}
+
+export async function addStrategyConfig(body: any, options?: { [key: string]: any }) {
+  return request<API.StrategyConfig>('/api/strategyConfig/save', {
+    method: 'PUT',
+    data: body,
+    ...(options || {}),
+  });
+}
+
+export async function getStrategyConfig(
+  params: {
+    id?: number;
+  },
+  options?: { [key: string]: any },
+) {
+  return request<API.StrategyConfigList>('/api/strategyConfig/getByAppId', {
+    method: 'GET',
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}

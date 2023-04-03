@@ -7,6 +7,8 @@ import type { RunTimeLayoutConfig } from '@umijs/max';
 import { history, Link } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { errorConfig } from './requestErrorConfig';
+// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -23,10 +25,45 @@ export async function getInitialState(): Promise<{
 }> {
   const fetchUserInfo = async () => {
     try {
-      const msg = await queryCurrentUser({
-        skipErrorHandler: true,
-      });
-      return msg.data;
+      // const msg = await queryCurrentUser({
+      //   skipErrorHandler: true,
+      // });
+      // return msg.data;
+      return {
+        name: 'admin',
+        avatar: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png',
+        userid: '00000001',
+        email: '123@demo.com',
+        signature: '海纳百川，有容乃大',
+        title: '管理员',
+        group: 'jjcx-admin',
+        tags: [
+          {
+            key: '0',
+            label: '很有想法的',
+          },
+          {
+            key: '1',
+            label: '海纳百川',
+          },
+        ],
+        notifyCount: 12,
+        unreadCount: 11,
+        country: 'China',
+        access: 'admin',
+        geographic: {
+          province: {
+            label: '上海市',
+            key: '330000',
+          },
+          city: {
+            label: '上海市',
+            key: '330100',
+          },
+        },
+        address: '西湖区工专路 77 号',
+        phone: '0000-888888888',
+      }
     } catch (error) {
       history.push(loginPath);
     }
